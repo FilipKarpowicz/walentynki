@@ -94,12 +94,115 @@
       color: #db2777;
       min-height: 30px;
     }
+
+    @keyframes fall {
+      to {
+        transform: translateY(300px) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    .heart {
+      position: fixed;
+      pointer-events: none;
+      font-size: 30px;
+      animation: fall 2s ease-in forwards;
+    }
+
+    @keyframes confetti {
+      0% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(100px) rotateZ(360deg);
+      }
+    }
+
+    .confetti-piece {
+      position: fixed;
+      pointer-events: none;
+      animation: confetti 2s ease-in forwards;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.4);
+      z-index: 1000;
+      place-items: center;
+      display: grid;
+    }
+
+    .modal.show {
+      display: grid;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 20px;
+      padding: 32px 24px;
+      text-align: center;
+      width: 85%;
+      max-width: 400px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      animation: slideUp 0.3s ease-out;
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(30px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .modal-content h2 {
+      font-size: 24px;
+      color: #be123c;
+      margin: 0 0 16px;
+    }
+
+    .modal-content p {
+      font-size: 18px;
+      color: #555;
+      margin: 0 0 24px;
+      line-height: 1.4;
+    }
+
+    .modal-btn {
+      background: #22c55e;
+      color: white;
+      border: none;
+      padding: 12px 32px;
+      border-radius: 999px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      margin: 0 8px;
+      transition: transform 0.2s;
+    }
+
+    .modal-btn:active {
+      transform: scale(0.95);
+    }
+
+    .modal-btn.secondary {
+      background: #ef4444;
+    }
   </style>
 </head>
 
 <body>
   <main class="card">
-    <h1>💘 Czy zostaniesz moją Walentynką?</h1>
+    <h1>💘 wiadomosc dla Juli</h1>
 
     <div class="stage" id="stage">
       <button id="yesBtn">TAK 💚</button>
@@ -109,14 +212,68 @@
     <div class="result" id="result"></div>
   </main>
 
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <h2 id="modalTitle">Proszę? 🥺</h2>
+      <p id="modalMessage"></p>
+      <button class="modal-btn" onclick="document.getElementById('modal').classList.remove('show'); location.reload();">Nowa próba</button>
+      <button class="modal-btn secondary" onclick="document.getElementById('modal').classList.remove('show');">Może pozniej</button>
+    </div>
+  </div>
+
   <script>
     const stage = document.getElementById("stage");
     const yesBtn = document.getElementById("yesBtn");
     const noBtn = document.getElementById("noBtn");
     const result = document.getElementById("result");
+    const modal = document.getElementById("modal");
 
-    let yesScale = 1;
+    let noClickCount = 0;
     let noScale = 1;
+
+    const messages = [
+      { title: "Proszę? 🥺", text: "Zastanów się jeszcze..." },
+      { title: "Naprawdę NIE? 😢", text: "Może zmienisz zdanie?" },
+      { title: "Ostatnia szansa! 💔", text: "Powiedz TAK!" }
+    ];
+
+    // Funkcja tworząca spadające serca
+    function createFallingHearts() {
+      for (let i = 0; i < 8; i++) {
+        const heart = document.createElement("div");
+        heart.className = "heart";
+        heart.textContent = "💚";
+        heart.style.left = Math.random() * window.innerWidth + "px";
+        heart.style.top = "-40px";
+        document.body.appendChild(heart);
+        
+        setTimeout(() => heart.remove(), 2000);
+      }
+    }
+
+    // Funkcja tworząca konfetti
+    function createConfetti() {
+      const colors = ["🎉", "✨", "💖", "💚"];
+      for (let i = 0; i < 15; i++) {
+        const confetti = document.createElement("div");
+        confetti.className = "confetti-piece";
+        confetti.textContent = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.left = Math.random() * window.innerWidth + "px";
+        confetti.style.top = Math.random() * window.innerHeight + "px";
+        confetti.style.fontSize = "24px";
+        confetti.style.transform = `rotateZ(${Math.random() * 360}deg)`;
+        document.body.appendChild(confetti);
+        
+        setTimeout(() => confetti.remove(), 2000);
+      }
+    }
+
+    // Haptic feedback (wibracje na iOS/Android)
+    function triggerVibration() {
+      if (navigator.vibrate) {
+        navigator.vibrate(50);
+      }
+    }
 
     // Funkcja obliczająca bezpieczną ucieczkę przycisku
     function moveNoButton() {
@@ -124,15 +281,12 @@
       const btnWidth = noBtn.offsetWidth;
       const btnHeight = noBtn.offsetHeight;
 
-      // Obliczamy losowe współrzędne tak, aby przycisk nie wyszedł poza ramkę
       const maxX = stageRect.width - btnWidth;
       const maxY = stageRect.height - btnHeight;
 
       const randomX = Math.random() * maxX;
       const randomY = Math.random() * maxY;
 
-      // Na iOS/Safari zmieniamy sposób pozycjonowania na absolutny px
-      // usuwając translate, by uniknąć problemów z punktem zakotwiczenia
       noBtn.style.left = `${randomX}px`;
       noBtn.style.top = `${randomY}px`;
       noBtn.style.transform = `translate(0, 0) scale(${noScale})`;
@@ -141,14 +295,26 @@
     function handleNoAction(e) {
       if (e) e.preventDefault();
       
-      // Zwiększamy TAK
-      yesScale += 0.25;
-      yesBtn.style.transform = `translate(-50%, -50%) scale(${yesScale})`;
-
+      triggerVibration();
+      
+      noClickCount++;
+      
       // Zmniejszamy NIE
       noScale = Math.max(0.4, noScale - 0.1);
       
       moveNoButton();
+
+      // Po 3 przyciskach - pokazujemy popup
+      if (noClickCount >= 3) {
+        const messageIndex = Math.min(noClickCount - 3, messages.length - 1);
+        const message = messages[messageIndex];
+        
+        document.getElementById("modalTitle").textContent = message.title;
+        document.getElementById("modalMessage").textContent = message.text;
+        modal.classList.add("show");
+        
+        createFallingHearts();
+      }
     }
 
     // Obsługa dla komputerów (najechanie myszką)
@@ -176,7 +342,10 @@
       yesBtn.style.top = "50%";
       yesBtn.style.transform = "translate(-50%, -50%) scale(1.6)";
       
-      // Dodatkowy efekt "pulsu" dla przycisku TAK
+      createConfetti();
+      createFallingHearts();
+      triggerVibration();
+      
       yesBtn.style.transition = "transform 0.5s infinite alternate";
     });
   </script>
