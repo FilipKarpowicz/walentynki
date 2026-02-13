@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>💘 Walentynka</title>
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #ffe4e6, #ffdde1);
+      overflow: hidden;
+      touch-action: manipulation;
+    }
+
+    .card {
+      width: min(520px, calc(100% - 32px));
+      background: rgba(255,255,255,0.9);
+      border-radius: 24px;
+      padding: 28px;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+      position: relative;
+      z-index: 10;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 28px;
+      color: #be123c;
+    }
+
+    .stage {
+      position: relative;
+      height: 250px; /* Zwiększona wysokość dla lepszego ruchu */
+      border-radius: 18px;
+      background: rgba(255,255,255,0.5);
+      overflow: hidden;
+      margin-top: 20px;
+    }
+
+    button {
+      position: absolute;
+      padding: 14px 22px;
+      border: none;
+      border-radius: 999px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    #yesBtn {
+      background: #22c55e;
+      color: white;
+      left: 30%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 100;
+    }
+
+    #noBtn {
+      background: #ef4444;
+      color: white;
+      left: 70%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      transition: all 0.2s ease;
+    }
+
+    .result {
+      margin-top: 20px;
+      font-size: 20px;
+      font-weight: 800;
+      color: #db2777;
+      min-height: 30px;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="card">
+    <h1>💘 Czy zostaniesz moją Walentynką?</h1>
+
+    <div class="stage" id="stage">
+      <button id="yesBtn">TAK 💚</button>
+      <button id="noBtn">NIE 🙈</button>
+    </div>
+
+    <div class="result" id="result"></div>
+  </main>
+
+  <script>
+    const stage = document.getElementById("stage");
+    const yesBtn = document.getElementById("yesBtn");
+    const noBtn = document.getElementById("noBtn");
+    const result = document.getElementById("result");
+
+    let yesScale = 1;
+    let noScale = 1;
+
+    // Funkcja obliczająca bezpieczną ucieczkę przycisku
+    function moveNoButton() {
+      const stageRect = stage.getBoundingClientRect();
+      const btnWidth = noBtn.offsetWidth;
+      const btnHeight = noBtn.offsetHeight;
+
+      // Obliczamy losowe współrzędne tak, aby przycisk nie wyszedł poza ramkę
+      const maxX = stageRect.width - btnWidth;
+      const maxY = stageRect.height - btnHeight;
+
+      const randomX = Math.random() * maxX;
+      const randomY = Math.random() * maxY;
+
+      // Na iOS/Safari zmieniamy sposób pozycjonowania na absolutny px
+      // usuwając translate, by uniknąć problemów z punktem zakotwiczenia
+      noBtn.style.left = `${randomX}px`;
+      noBtn.style.top = `${randomY}px`;
+      noBtn.style.transform = `translate(0, 0) scale(${noScale})`;
+    }
+
+    function handleNoAction(e) {
+      if (e) e.preventDefault();
+      
+      // Zwiększamy TAK
+      yesScale += 0.25;
+      yesBtn.style.transform = `translate(-50%, -50%) scale(${yesScale})`;
+
+      // Zmniejszamy NIE
+      noScale = Math.max(0.4, noScale - 0.1);
+      
+      moveNoButton();
+    }
+
+    // Obsługa dla komputerów (najechanie myszką)
+    noBtn.addEventListener("mouseenter", () => {
+      if (window.matchMedia("(pointer: fine)").matches) {
+        moveNoButton();
+      }
+    });
+
+    // Obsługa dla iPhone/Android (dotyk)
+    noBtn.addEventListener("touchstart", handleNoAction, { passive: false });
+
+    // Fallback dla zwykłego kliknięcia
+    noBtn.addEventListener("click", (e) => {
+      if (!window.matchMedia("(pointer: fine)").matches) {
+        handleNoAction(e);
+      }
+    });
+
+    // Sukces
+    yesBtn.addEventListener("click", () => {
+      result.textContent = "Yesss! 💖 Kocham Cię 🥰";
+      noBtn.style.display = "none";
+      yesBtn.style.left = "50%";
+      yesBtn.style.top = "50%";
+      yesBtn.style.transform = "translate(-50%, -50%) scale(1.6)";
+      
+      // Dodatkowy efekt "pulsu" dla przycisku TAK
+      yesBtn.style.transition = "transform 0.5s infinite alternate";
+    });
+  </script>
+</body>
+</html>
+
