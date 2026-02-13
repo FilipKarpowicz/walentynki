@@ -2,19 +2,25 @@
 <html lang="pl">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>💘 Walentynka</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#ffe4e6" />
+  <title>💘 wiadomosc dla Juli</title>
 
   <style>
     body {
       margin: 0;
       min-height: 100vh;
+      min-height: 100dvh;
       display: grid;
       place-items: center;
       font-family: system-ui, -apple-system, sans-serif;
       background: linear-gradient(135deg, #ffe4e6, #ffdde1);
       overflow: hidden;
       touch-action: manipulation;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
     }
 
     .card {
@@ -54,6 +60,11 @@
       box-shadow: 0 8px 15px rgba(0,0,0,0.1);
       transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       -webkit-tap-highlight-color: transparent;
+      min-height: 44px;
+      min-width: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     #yesBtn {
@@ -63,6 +74,7 @@
       top: 50%;
       transform: translate(-50%, -50%);
       z-index: 100;
+      -webkit-user-select: none;
     }
 
     #noBtn {
@@ -72,6 +84,7 @@
       top: 50%;
       transform: translate(-50%, -50%);
       transition: all 0.2s ease;
+      -webkit-user-select: none;
     }
 
     .result {
@@ -86,7 +99,7 @@
 
 <body>
   <main class="card">
-    <h1>💘 Czy zostaniesz moją Walentynką?</h1>
+    <h1>💘 wiadomosc dla Juli</h1>
 
     <div class="stage" id="stage">
       <button id="yesBtn">TAK 💚</button>
